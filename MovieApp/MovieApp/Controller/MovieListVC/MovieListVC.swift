@@ -59,7 +59,9 @@ class MovieListVC: UIViewController {
             }
             
         }) { (error) in
-            self.activity.isHidden = true
+            DispatchQueue.main.async {
+                self.activity.isHidden = true
+            }
         }
         
     }

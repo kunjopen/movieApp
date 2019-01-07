@@ -69,6 +69,13 @@ class SearchVC: UIViewController {
         }
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if let destinationVC = segue.destination as? SearchResultVC {
+            let objSearchResult = fetchedResultsController.object(at: sender as! IndexPath)
+            destinationVC.strSearchText = objSearchResult.searchText
+        }
+    }
+    
     @IBAction func btnCancelCliecked(_ btnSender: UIButton) {
         self.dismiss(animated: true, completion: nil)
     }
@@ -138,8 +145,10 @@ extension SearchVC : UISearchBarDelegate {
                 try context.save()
                 deleteOtherSearch()
             } catch  {
+                
                 debugPrint(error)
                 debugPrint("Failed saving")
+                context.delete(SearchResult)
             }
         }
     }
@@ -164,23 +173,16 @@ extension SearchVC : UITableViewDelegate, UITableViewDataSource {
         return sectionInfo.numberOfObjects
     }
     
-    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
-        return UITableView.automaticDimension
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat{
-        return UITableView.automaticDimension
-    }
-    
-    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        let cell:SearchCell = tableView.dequeueReusableCell(withIdentifier: "SearchCell", for: indexPath) as! SearchCell
         let objSearchResult = fetchedResultsController.object(at: indexPath)
-        cell.textLabel?.text = objSearchResult.searchText
-        
-        cell.layoutIfNeeded()
+        cell.lblSearchText.text = objSearchResult.searchText
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        self.performSegue(withIdentifier: "ResultToList", sender: indexPath)
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
