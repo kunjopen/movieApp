@@ -14,5 +14,6 @@ class SearchCell: UITableViewCell {
     @IBOutlet weak var lblSearchText: UILabel!
     
     override func awakeFromNib() {
+        
     }
 }

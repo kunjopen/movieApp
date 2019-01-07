@@ -16,6 +16,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let coreData = "MovieApp"
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        self.window?.backgroundColor = #colorLiteral(red: 0.1271243393, green: 0.2286310792, blue: 0.3835525513, alpha: 1)
+        LoadMore.sharedInstance.setLoadingFooter()
         return true
     }
 
@@ -35,7 +37,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         })
         return container
     }()
-    
-    
 }
 

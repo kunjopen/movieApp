@@ -10,16 +10,22 @@ import UIKit
 import CoreData
 
 class SearchVC: UIViewController {
-
-    let appDelegate = UIApplication.shared.delegate as! AppDelegate
-    let LimitRecord = 10
-    var arrSearchResults = [SearchResult]()
     
+    
+    //MARK:- IBOutlate
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var tblSearchView: UITableView!
     
+    
+    //MARK:- Variables
+    
+    let LimitRecord = 10
+    var arrSearchResults = [SearchResult]()
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
+    
+    
+    //Manage coredata changes and update UI
     lazy var fetchedResultsController: NSFetchedResultsController<SearchResult> = {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let managedContext = appDelegate.persistentContainer.viewContext
         let fetchRequest = NSFetchRequest<SearchResult>(entityName: "SearchResult")
         let sortDescriptor = NSSortDescriptor(key: "searchTime", ascending: false)
@@ -44,12 +50,33 @@ class SearchVC: UIViewController {
         }
     }
     
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setUpNavigationbar()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        setUpNavigationbar()
+    }
+    
+    func setUpNavigationbar() {
+        
+        navigationController?.view.setNeedsLayout()
+        navigationController?.view.layoutIfNeeded()
+        
+    }
+    
+    /*
+     In search function we always show latest record on top. We show 10 result.
+     */
     func deleteOtherSearch() {
         
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "SearchResult")
         
         do {
-        
+            
             let count = try appDelegate.persistentContainer.viewContext.count(for:fetchRequest)
             
             if count > LimitRecord {
@@ -57,7 +84,7 @@ class SearchVC: UIViewController {
                 fetchRequest.sortDescriptors = [sortDescriptor]
                 fetchRequest.fetchLimit = count - LimitRecord
                 let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
-            
+                
                 do {
                     try appDelegate.persistentContainer.viewContext.execute(batchDeleteRequest)
                 } catch {
@@ -69,10 +96,17 @@ class SearchVC: UIViewController {
         }
     }
     
+    // Move to Search Result
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let destinationVC = segue.destination as? SearchResultVC {
-            let objSearchResult = fetchedResultsController.object(at: sender as! IndexPath)
-            destinationVC.strSearchText = objSearchResult.searchText
+            
+            if let indexPath = sender as? IndexPath {
+               let objSearchResult = fetchedResultsController.object(at: indexPath)
+                destinationVC.strSearchText = objSearchResult.searchText
+            }
+            else {
+                destinationVC.strSearchText = searchBar.text
+            }
         }
     }
     
@@ -81,6 +115,8 @@ class SearchVC: UIViewController {
     }
     
 }
+
+//MARK:- NSFetchedResultsControllerDelegate
 
 extension SearchVC : NSFetchedResultsControllerDelegate {
     
@@ -110,6 +146,8 @@ extension SearchVC : NSFetchedResultsControllerDelegate {
     }
     
 }
+
+//MARK:- UISearchBarDelegate
 
 extension SearchVC : UISearchBarDelegate {
     
@@ -151,11 +189,15 @@ extension SearchVC : UISearchBarDelegate {
                 context.delete(SearchResult)
             }
         }
+        
+        self.performSegue(withIdentifier: "ResultToList", sender: nil)
+        
     }
     
 }
 
 
+//MARK:- UITableViewDelegate, UITableViewDataSource
 
 extension SearchVC : UITableViewDelegate, UITableViewDataSource {
     
