@@ -19,7 +19,7 @@ class MovieListVC: UIViewController {
     @IBOutlet weak var infoLabel: UILabel!
     
     //MARK:- Variables
-    fileprivate let movieViewModel = MovieViewModel()
+    private let movieViewModel = MovieViewModel()
     private var pageSize: CGSize {
         let layout = self.collectionView.collectionViewLayout as! MovieFlowLayout
         var pageSize = layout.itemSize

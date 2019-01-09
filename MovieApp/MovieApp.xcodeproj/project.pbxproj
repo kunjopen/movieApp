@@ -28,6 +28,8 @@
 		1675862E21E5E45C00551079 /* MovieCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1675862C21E5E45C00551079 /* MovieCell.xib */; };
 		1675863221E5E61D00551079 /* SearchCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1675863021E5E61D00551079 /* SearchCell.xib */; };
 		1675863821E5E73900551079 /* SearchResultCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1675863621E5E73900551079 /* SearchResultCell.xib */; };
+		1675863A21E61E0800551079 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1675863921E61E0800551079 /* SearchViewModel.swift */; };
+		1675863C21E61E4200551079 /* SearchRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1675863B21E61E4200551079 /* SearchRepository.swift */; };
 		16AC4ABA21E30C6300E77D42 /* SearchVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16AC4AB921E30C6300E77D42 /* SearchVC.swift */; };
 		16AC4ABE21E31D8800E77D42 /* SearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16AC4ABD21E31D8800E77D42 /* SearchCell.swift */; };
 		16AC4AC321E3234D00E77D42 /* SearchResultVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16AC4AC221E3234D00E77D42 /* SearchResultVC.swift */; };
@@ -58,6 +60,8 @@
 		1675862C21E5E45C00551079 /* MovieCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MovieCell.xib; sourceTree = "<group>"; };
 		1675863021E5E61D00551079 /* SearchCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SearchCell.xib; sourceTree = "<group>"; };
 		1675863621E5E73900551079 /* SearchResultCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SearchResultCell.xib; sourceTree = "<group>"; };
+		1675863921E61E0800551079 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
+		1675863B21E61E4200551079 /* SearchRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchRepository.swift; sourceTree = "<group>"; };
 		16AC4AB921E30C6300E77D42 /* SearchVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchVC.swift; sourceTree = "<group>"; };
 		16AC4ABD21E31D8800E77D42 /* SearchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchCell.swift; sourceTree = "<group>"; };
 		16AC4AC221E3234D00E77D42 /* SearchResultVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultVC.swift; sourceTree = "<group>"; };
@@ -168,6 +172,7 @@
 		1675861D21E5C1E200551079 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				1675863921E61E0800551079 /* SearchViewModel.swift */,
 				1613717E21DF53EC00653FCC /* MovieViewModel.swift */,
 			);
 			path = ViewModel;
@@ -187,6 +192,7 @@
 		1675861F21E5C1F400551079 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				1675863B21E61E4200551079 /* SearchRepository.swift */,
 				1675862321E5C2FA00551079 /* MoviesRepository.swift */,
 				1675862521E5C30800551079 /* MovieObject.swift */,
 			);
@@ -380,8 +386,10 @@
 				1675861921E5BF6500551079 /* NSObjectExtension.swift in Sources */,
 				1613718C21DF63E300653FCC /* APIManager.swift in Sources */,
 				16AC4ABE21E31D8800E77D42 /* SearchCell.swift in Sources */,
+				1675863A21E61E0800551079 /* SearchViewModel.swift in Sources */,
 				1613716E21DF51A900653FCC /* MovieListVC.swift in Sources */,
 				1613718821DF62D000653FCC /* APIConstants.swift in Sources */,
+				1675863C21E61E4200551079 /* SearchRepository.swift in Sources */,
 				16AC4ABA21E30C6300E77D42 /* SearchVC.swift in Sources */,
 				161ED9D021E36C06005120A7 /* LoadMore.swift in Sources */,
 				16AC4AC321E3234D00E77D42 /* SearchResultVC.swift in Sources */,
