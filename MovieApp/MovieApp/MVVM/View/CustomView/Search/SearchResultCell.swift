@@ -20,16 +20,16 @@ class SearchResultCell: UITableViewCell {
     @IBOutlet weak var viewRating: FloatRatingView!
     @IBOutlet weak var btnBuyTicket: UIButton!
     
-    var movieDetail : MovieModel!{
+    var movieObject : MovieObject!{
         didSet{
-            self.lblTitle.text = movieDetail.strTitle
-            self.lblAvg.text = "\(movieDetail.rating!)"
-            self.lblAge.text = movieDetail.strAge
-            self.lblDesc.text = movieDetail.strDesc
-            self.lblDate.text = movieDetail.strReleaseDate
-            self.ivImage.sd_setImage(with: movieDetail.urlImagePath, completed: nil)
+            self.lblTitle.text = movieObject.strTitle
+            self.lblAvg.text = "\(movieObject.rating!)"
+            self.lblAge.text = movieObject.strAge
+            self.lblDesc.text = movieObject.strDesc
+            self.lblDate.text = movieObject.strReleaseDate
+            self.ivImage.sd_setImage(with: movieObject.urlImagePath, completed: nil)
             
-            self.viewRating.rating = (movieDetail.rating ?? 0)/2
+            self.viewRating.rating = (movieObject.rating ?? 0)/2
         }
     }
     

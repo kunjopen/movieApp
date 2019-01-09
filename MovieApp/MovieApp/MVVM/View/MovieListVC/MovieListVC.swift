@@ -22,7 +22,7 @@ class MovieListVC: UIViewController {
     //MARK:- Variables
     
     //List of all movies
-    private var movieModels = [MovieModel]()
+    private var movieObjects = [MovieObject]()
     
     private var pageSize: CGSize {
         let layout = self.collectionView.collectionViewLayout as! MovieFlowLayout
@@ -45,10 +45,9 @@ class MovieListVC: UIViewController {
         let movieModel = MovieModel()
         movieModel.getAllMoviesFromServer(dictParams: nil, success: { (response) in
             
+            self.movieObjects = response as! [MovieObject]
             
-            self.movieModels = response as! [MovieModel]
-            
-            if(self.movieModels.count > 0) {
+            if(self.movieObjects.count > 0) {
                 DispatchQueue.main.async {
                     self.collectionView.isHidden = false
                     self.viewMovieDetail.isHidden = false
@@ -70,7 +69,7 @@ class MovieListVC: UIViewController {
     
     private func setMovieDetails(currentPage: Int) {
         
-        let movieModel = self.movieModels[currentPage]
+        let movieModel = self.movieObjects[currentPage]
         
         UIView.transition(with: self.infoLabel, duration: 0.3, options: .transitionCrossDissolve, animations: {
             self.infoLabel.text = movieModel.strTitle
@@ -89,12 +88,12 @@ extension MovieListVC: UICollectionViewDelegate, UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return movieModels.count
+        return movieObjects.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MovieCell", for: indexPath) as! MovieCell
-        let movieModel = movieModels[(indexPath as NSIndexPath).row]
+        let movieModel = movieObjects[(indexPath as NSIndexPath).row]
         cell.lblPreSale.isHidden = movieModel.isPreSeal!
         cell.ivImage.sd_setImage(with: movieModel.urlImagePath, completed: nil)
         return cell

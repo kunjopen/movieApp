@@ -32,7 +32,7 @@ class ShowNowVC: UIViewController {
     
     
     //List of all movies
-    private var movieModels = [MovieModel]()
+    private var movieObjects = [MovieObject]()
     
     
     override func viewDidLoad() {
@@ -63,9 +63,9 @@ class ShowNowVC: UIViewController {
                 self.tableView.refreshControl?.endRefreshing()
             }
             
-            self.movieModels = response!
+            self.movieObjects = response!
             
-            if(self.movieModels.count > 0) {
+            if(self.movieObjects.count > 0) {
                 DispatchQueue.main.async {
                     self.tableView.isHidden = false
                     self.activity.isHidden = true
@@ -85,19 +85,19 @@ class ShowNowVC: UIViewController {
 extension ShowNowVC: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return movieModels.count
+        return movieObjects.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let searchResultCell: SearchResultCell = tableView.dequeueReusableCell(withIdentifier: "SearchResultCell") as! SearchResultCell
         searchResultCell.selectionStyle = .none
-        searchResultCell.movieDetail = movieModels[indexPath.row]
+        searchResultCell.movieObject = movieObjects[indexPath.row]
         return searchResultCell
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         
-        if(indexPath.row == (movieModels.count-1)) {
+        if(indexPath.row == (movieObjects.count-1)) {
             
             if(isWSCall == false) {
                 LoadMore.sharedInstance.showLoadingInTable(tbl:self.tableView, text: "")
@@ -108,7 +108,7 @@ extension ShowNowVC: UITableViewDelegate, UITableViewDataSource {
                 isWSCall = true
                 
                 movieModel.loadMoreSearchResultFromServer(dictParams: params as [String : AnyObject], success: { (response) in
-                    self.movieModels = self.movieModels + response!
+                    self.movieObjects = self.movieObjects + response!
                     self.isWSCall = false
                     DispatchQueue.main.async {
                         self.tableView.reloadData()

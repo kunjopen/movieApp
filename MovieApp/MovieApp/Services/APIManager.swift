@@ -20,7 +20,6 @@ private func getHeaderData() -> Dictionary<String, String> {
 
 class NetworkManager: NSObject {
     
-    static let BaseRequestSharedInstance = NetworkManager()
     var taskPost: URLSessionTask? = nil
     
     func GETDataRequset(taskCancel:Bool ,requestUrl:String, parameter:[String : AnyObject]?, success:@escaping (AnyObject?) -> Void, failed:@escaping (AnyObject?) -> Void) {
