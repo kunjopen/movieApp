@@ -11,18 +11,14 @@ import CoreData
 
 class SearchVC: UIViewController {
     
-    
     //MARK:- IBOutlate
-    @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var tblSearchView: UITableView!
-    
+    @IBOutlet weak var searchBar: UISearchBar!
     
     //MARK:- Variables
-    
-    let LimitRecord = 10
     var arrSearchResults = [SearchResult]()
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
-    
+    let LimitRecord = 10
     
     //Manage coredata changes and update UI
     lazy var fetchedResultsController: NSFetchedResultsController<SearchResult> = {
@@ -35,10 +31,12 @@ class SearchVC: UIViewController {
         return fetchedResultsController
     }()
     
+    //MARK:- View Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        tblSearchView.registerNib("SearchCell")
         tblSearchView.tableFooterView = UIView()
         
         do{
@@ -62,10 +60,8 @@ class SearchVC: UIViewController {
     }
     
     func setUpNavigationbar() {
-        
         navigationController?.view.setNeedsLayout()
         navigationController?.view.layoutIfNeeded()
-        
     }
     
     /*
@@ -76,10 +72,10 @@ class SearchVC: UIViewController {
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "SearchResult")
         
         do {
-            
             let count = try appDelegate.persistentContainer.viewContext.count(for:fetchRequest)
             
             if count > LimitRecord {
+                
                 let sortDescriptor = NSSortDescriptor(key: "searchTime", ascending: true)
                 fetchRequest.sortDescriptors = [sortDescriptor]
                 fetchRequest.fetchLimit = count - LimitRecord
@@ -87,21 +83,24 @@ class SearchVC: UIViewController {
                 
                 do {
                     try appDelegate.persistentContainer.viewContext.execute(batchDeleteRequest)
-                } catch {
+                }
+                catch {
                     debugPrint("Error: \(error.localizedDescription)")
                 }
             }
-        } catch let error as NSError {
+        }
+        catch let error as NSError {
             debugPrint("Error: \(error.localizedDescription)")
         }
     }
     
     // Move to Search Result
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
         if let destinationVC = segue.destination as? SearchResultVC {
             
             if let indexPath = sender as? IndexPath {
-               let objSearchResult = fetchedResultsController.object(at: indexPath)
+                let objSearchResult = fetchedResultsController.object(at: indexPath)
                 destinationVC.strSearchText = objSearchResult.searchText
             }
             else {
@@ -122,19 +121,16 @@ extension SearchVC : NSFetchedResultsControllerDelegate {
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         
-        switch (type) {
-        case .insert:
-            if let indexPath = newIndexPath {
+        if let indexPath = newIndexPath {
+            switch (type) {
+            case .insert:
                 tblSearchView.insertRows(at: [indexPath], with: .fade)
-            }
-        case .delete:
-            if let indexPath = indexPath {
+            case .delete:
                 tblSearchView.deleteRows(at: [indexPath], with: .fade)
+            default:
+                break;
             }
-        default:
-            break;
         }
-        
     }
     
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
@@ -155,17 +151,18 @@ extension SearchVC : UISearchBarDelegate {
         
         if searchText.count > 0 {
             fetchedResultsController.fetchRequest.predicate = NSPredicate(format: "searchText contains[c] %@", searchText)
-        }else{
+        }
+        else{
             fetchedResultsController.fetchRequest.predicate = nil
         }
         
         do{
             try fetchedResultsController.performFetch()
             self.tblSearchView.reloadData()
-        }catch{
+        }
+        catch{
             debugPrint(error)
         }
-        
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
@@ -182,18 +179,15 @@ extension SearchVC : UISearchBarDelegate {
             do {
                 try context.save()
                 deleteOtherSearch()
-            } catch  {
-                
+            }
+            catch  {
                 debugPrint(error)
-                debugPrint("Failed saving")
                 context.delete(SearchResult)
             }
         }
         
         self.performSegue(withIdentifier: "ResultToList", sender: nil)
-        
     }
-    
 }
 
 
@@ -201,12 +195,8 @@ extension SearchVC : UISearchBarDelegate {
 
 extension SearchVC : UITableViewDelegate, UITableViewDataSource {
     
-    
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return 1
-    }
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
         guard let sections = fetchedResultsController.sections else {
             return 0
         }
@@ -216,10 +206,8 @@ extension SearchVC : UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
         let cell:SearchCell = tableView.dequeueReusableCell(withIdentifier: "SearchCell", for: indexPath) as! SearchCell
-        let objSearchResult = fetchedResultsController.object(at: indexPath)
-        cell.lblSearchText.text = objSearchResult.searchText
+        cell.searchObject = fetchedResultsController.object(at: indexPath)
         return cell
     }
     

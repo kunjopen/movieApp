@@ -15,3 +15,11 @@ extension UITableView {
         register(cellNib, forCellReuseIdentifier: nibName)
     }
 }
+
+extension UICollectionView {
+    /// use to register nibs in view
+    internal func registerNib(_ nibName: String) {
+        let cellNib = UINib.init(nibName: nibName, bundle: nil)
+        register(cellNib, forCellWithReuseIdentifier: nibName)
+    }
+}

@@ -8,34 +8,48 @@
 
 import UIKit
 
-class SearchResultVC: UIViewController,UIPageViewControllerDelegate,UIPageViewControllerDataSource {
+class SearchResultVC: UIViewController {
     
+    @IBOutlet weak var constantViewLeft: NSLayoutConstraint!
     @IBOutlet var btnNowShowing: UIButton!
     @IBOutlet var btnCommingSoon: UIButton!
-    var indexOfViewController : String?
-    
-    @IBOutlet var viewLine: UIView!
-    @IBOutlet weak var constantViewLeft: NSLayoutConstraint!
     @IBOutlet weak var viewMenu: UIView!
+    @IBOutlet var viewLine: UIView!
     
     var pageController: UIPageViewController!
+    var indexOfViewController : String?
     var arrVC:[UIViewController] = []
+    var strSearchText:String!
     var currentPage: Int!
     
-    
-    var strSearchText:String!
     
     // MARK: - View Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.setInitialUI()
+    }
+    
+    //MARK: - Custom Methods
+    
+    private func setInitialUI() {
+        
         currentPage = 0
         createPageViewController()
         
-        pageController.delegate = self
         pageController.dataSource = self
+        pageController.delegate = self
+        
+        viewMenu.layer.shadowOffset = CGSize(width: 0.0, height: 1.0)
+        viewMenu.layer.shadowColor = UIColor.black.cgColor
+        viewMenu.layer.masksToBounds = false
+        viewMenu.layer.shadowOpacity = 0.2
+        viewMenu.layer.shadowRadius = 0.3
+        
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
+        navigationController?.navigationBar.shadowImage = UIImage()
     }
     
-    func createPageViewController() {
+    private func createPageViewController() {
         
         pageController = UIPageViewController.init(transitionStyle: UIPageViewController.TransitionStyle.scroll, navigationOrientation: UIPageViewController.NavigationOrientation.horizontal, options: nil)
         
@@ -46,7 +60,7 @@ class SearchResultVC: UIViewController,UIPageViewControllerDelegate,UIPageViewCo
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.pageController.view.frame = CGRect(x: 0, y: (self.viewMenu.frame.origin.y + self.viewMenu.frame.size.height) , width: self.view.frame.size.width, height: self.view.frame.size.height - (self.viewMenu.frame.origin.y + self.viewMenu.frame.size.height))
+            self.pageController.view.frame = CGRect(x: 0, y: (self.viewMenu.frame.origin.y + self.viewMenu.frame.size.height + 4) , width: self.view.frame.size.width, height: self.view.frame.size.height - (self.viewMenu.frame.origin.y + self.viewMenu.frame.size.height - 4))
         }
         
         let showNowVC = storyboard?.instantiateViewController(withIdentifier: "ShowNowVC") as! ShowNowVC
@@ -64,76 +78,29 @@ class SearchResultVC: UIViewController,UIPageViewControllerDelegate,UIPageViewCo
         self.addChild(pageController)
         self.view.addSubview(pageController.view)
         pageController.didMove(toParent: self)
-        
     }
     
-    //MARK: - Custom Methods
-    
-    func selectedButton(btn: UIButton) {
+    private func selectedButton(btn: UIButton) {
         btn.setTitleColor(UIColor.white, for: UIControl.State.normal)
         btn.titleLabel?.font = UIFont.systemFont(ofSize: 17)
         constantViewLeft.constant = btn.frame.origin.x
         self.view.layoutIfNeeded()
     }
     
-    func unSelectedButton(btn: UIButton) {
+    private func unSelectedButton(btn: UIButton) {
         btn.setTitleColor(UIColor.white.withAlphaComponent(0.7), for: .normal)
         btn.titleLabel?.font = UIFont.systemFont(ofSize: 15)
     }
     
-    func indexofviewController(viewCOntroller: UIViewController) -> Int {
+    private func indexofviewController(viewCOntroller: UIViewController) -> Int {
+        
         if(arrVC .contains(viewCOntroller)) {
             return  arrVC.index(of: viewCOntroller)!
         }
-        
         return -1
     }
     
-    func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
-        
-        var index = indexofviewController(viewCOntroller: viewController)
-        
-        if(index != -1) {
-            index = index - 1
-        }
-        
-        if(index < 0) {
-            return nil
-        }
-        else {
-            return  arrVC[index]
-        }
-        
-    }
-    
-    
-    func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
-        
-        var index = indexofviewController(viewCOntroller: viewController)
-        
-        if(index != -1) {
-            index = index + 1
-        }
-        
-        if(index >= arrVC.count) {
-            return nil
-        }
-        else {
-            return arrVC[index]
-        }
-        
-    }
-    
-    func pageViewController(_ pageViewController1: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
-        
-        if(completed) {
-            currentPage = arrVC.index(of: (pageViewController1.viewControllers?.last)!)
-            resetTabBarForTag(tag: currentPage)
-            
-        }
-    }
-    
-    func resetTabBarForTag(tag: Int) {
+    private func resetTabBarForTag(tag: Int) {
         
         var sender: UIButton!
         if(tag == 0) {
@@ -165,7 +132,52 @@ class SearchResultVC: UIViewController,UIPageViewControllerDelegate,UIPageViewCo
     }
 }
 
-extension SearchResultVC:UIScrollViewDelegate {
+extension SearchResultVC: UIPageViewControllerDelegate, UIPageViewControllerDataSource {
+    
+    func pageViewController(_ pageViewController1: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
+        
+        if(completed) {
+            currentPage = arrVC.index(of: (pageViewController1.viewControllers?.last)!)
+            resetTabBarForTag(tag: currentPage)
+        }
+    }
+    
+    func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
+        
+        var index = indexofviewController(viewCOntroller: viewController)
+        
+        if(index != -1) {
+            index = index - 1
+        }
+        
+        if(index < 0) {
+            return nil
+        }
+        else {
+            return  arrVC[index]
+        }
+        
+    }
+    
+    func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
+        
+        var index = indexofviewController(viewCOntroller: viewController)
+        
+        if(index != -1) {
+            index = index + 1
+        }
+        
+        if(index >= arrVC.count) {
+            return nil
+        }
+        else {
+            return arrVC[index]
+        }
+        
+    }
+}
+
+extension SearchResultVC: UIScrollViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let xFromCenter: CGFloat = self.view.frame.size.width-scrollView.contentOffset.x
@@ -173,5 +185,4 @@ extension SearchResultVC:UIScrollViewDelegate {
         let xPosition: CGFloat = xCoor - xFromCenter/CGFloat(arrVC.count)
         constantViewLeft.constant = xPosition
     }
-    
 }

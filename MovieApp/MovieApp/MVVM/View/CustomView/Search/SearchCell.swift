@@ -13,7 +13,10 @@ class SearchCell: UITableViewCell {
     //MARK:- IBOutlet
     @IBOutlet weak var lblSearchText: UILabel!
     
-    override func awakeFromNib() {
-        
+    var searchObject : SearchResult!{
+        didSet{
+            self.lblSearchText.text = searchObject.searchText
+        }
     }
+
 }

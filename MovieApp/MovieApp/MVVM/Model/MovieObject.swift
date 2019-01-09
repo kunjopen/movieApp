@@ -9,14 +9,12 @@
 import UIKit
 
 class MovieObject: NSObject {
-
+    var strReleaseDate: String?
+    var urlImagePath: URL?
     var strTitle: String?
+    var strDesc: String?
     var isPreSeal: Bool?
     var strType: String?
-    var urlImagePath: URL?
     var strAge: String?
     var rating: Double?
-    var strReleaseDate: String?
-    var strDesc: String?
-    
 }

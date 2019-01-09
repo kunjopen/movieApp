@@ -15,11 +15,11 @@ class ShowNowVC: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     
     //MARK:- Variables
-    var strSearchText:String!
-    var strType:String!
-    var pageNumber: Int!
-    let movieModel = MovieModel()
+    let movieViewModel = MovieViewModel()
     var isWSCall: Bool = false
+    var strSearchText:String!
+    var pageNumber = 0
+    var strType:String!
     
     //RefreshTableView
     lazy var refreshControl: UIRefreshControl = {
@@ -31,94 +31,81 @@ class ShowNowVC: UIViewController {
     
     
     
-    //List of all movies
-    private var movieObjects = [MovieObject]()
-    
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        self.tableView.refreshControl = refreshControl
-        self.tableView.estimatedRowHeight = 155
-        self.tableView.rowHeight = UITableView.automaticDimension
-        self.tableView.tableFooterView = UIView()
-        pageNumber = 0
-        self.getAllMoviewsFromServer()
-        
+        self.setInitialUI()
     }
     
     //MARK:- Get all Movie list
-    
     @objc private func refreshData(_ sender: Any) {
         getAllMoviewsFromServer()
     }
     
+    //MARK:- Custom Methods
+    
+    private func setInitialUI() {
+        
+        self.tableView.rowHeight = UITableView.automaticDimension
+        self.tableView.registerNib("SearchResultCell")
+        self.tableView.refreshControl = refreshControl
+        self.tableView.tableFooterView = UIView()
+        self.tableView.estimatedRowHeight = 155
+        
+        movieViewModel.delegate = self        
+        self.getAllMoviewsFromServer()
+    }
+    
     private func getAllMoviewsFromServer() {
+        let params = ["keyword": strSearchText, "offset": "\(pageNumber)", "type": strType]
+        movieViewModel.getSearchResultFromServer(dictParams: params as [String : AnyObject])
+    }
+    
+    private func loadMoreDataFromServer() {
+        LoadMore.sharedInstance.showLoadingInTable(tbl:self.tableView, text: "")
+        self.pageNumber = self.pageNumber + 1
+        let params = ["keyword": strSearchText, "offset": "\(pageNumber)", "type": strType]
+        isWSCall = true
+        movieViewModel.loadMoreSearchResultFromServer(dictParams: params as [String : AnyObject])
+    }
+    
+}
+
+extension ShowNowVC: ViewModelMovieDelegate {
+    
+    func reloadData() {
         
-        let params = ["keyword": strSearchText, "offset": "\(pageNumber!)", "type": strType]
-        
-        movieModel.getSearchResultFromServer(dictParams: params as [String : AnyObject], success: { (response) in
+        if(!self.movieViewModel.movieObjects.isEmpty) {
             
             DispatchQueue.main.async {
                 self.tableView.refreshControl?.endRefreshing()
-            }
-            
-            self.movieObjects = response!
-            
-            if(self.movieObjects.count > 0) {
-                DispatchQueue.main.async {
-                    self.tableView.isHidden = false
-                    self.activity.isHidden = true
-                    self.tableView.reloadData()
-                }
-            }
-            
-        }) { (error) in
-            DispatchQueue.main.async {
+                self.tableView.isHidden = false
                 self.activity.isHidden = true
+                self.tableView.reloadData()
+                self.isWSCall = false
             }
         }
     }
 }
 
-
 extension ShowNowVC: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return movieObjects.count
+        return self.movieViewModel.movieObjects.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let searchResultCell: SearchResultCell = tableView.dequeueReusableCell(withIdentifier: "SearchResultCell") as! SearchResultCell
         searchResultCell.selectionStyle = .none
-        searchResultCell.movieObject = movieObjects[indexPath.row]
+        searchResultCell.movieObject = self.movieViewModel.movieObjects[indexPath.row]
         return searchResultCell
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         
-        if(indexPath.row == (movieObjects.count-1)) {
+        if(indexPath.row == (self.movieViewModel.movieObjects.count-1)) {
             
             if(isWSCall == false) {
-                LoadMore.sharedInstance.showLoadingInTable(tbl:self.tableView, text: "")
-                
-                self.pageNumber = self.pageNumber + 1
-                let params = ["keyword": strSearchText, "offset": "\(pageNumber!)", "type": strType]
-                
-                isWSCall = true
-                
-                movieModel.loadMoreSearchResultFromServer(dictParams: params as [String : AnyObject], success: { (response) in
-                    self.movieObjects = self.movieObjects + response!
-                    self.isWSCall = false
-                    DispatchQueue.main.async {
-                        self.tableView.reloadData()
-                    }
-                    
-                }) { (error) in
-                    LoadMore.sharedInstance.hideLoadingInTable(tbl: self.tableView)
-                    self.pageNumber = self.pageNumber - 1
-                    self.isWSCall = false
-                }
+                self.loadMoreDataFromServer()
             }
         }
     }
