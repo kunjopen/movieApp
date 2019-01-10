@@ -32,11 +32,38 @@ class ShowNowVC: UIViewController {
         return refreshControl
     }()
     
-    
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setInitialUI()
+        self.bindLoading()
+        self.bindList()
+    }
+    
+    //MARK:- UI Binding
+    
+    private func bindList() {
+        
+        self.movieViewModel.movieObjects.asObservable()
+            .bind(to: tableView.rx.items) { (tableView, row, movieObject) in
+                let cell = tableView.dequeueReusableCell(withIdentifier: "SearchResultCell") as! SearchResultCell
+                cell.movieObject = movieObject
+                return cell
+            }
+            .disposed(by: disposeBag)
+        
+        tableView.rx
+            .willDisplayCell
+            .subscribe(onNext: { cell, indexPath in
+                if(indexPath.row == (self.movieViewModel.movieObjects.value.count-1)) {
+                    if(self.isWSCall == false) {
+                        self.loadMoreDataFromServer()
+                    }
+                }
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    private func bindLoading() {
         
         self.movieViewModel.movieObjects.asObservable().subscribe({
             _ in
@@ -47,12 +74,10 @@ class ShowNowVC: UIViewController {
                     self.tableView.refreshControl?.endRefreshing()
                     self.tableView.isHidden = false
                     self.activity.isHidden = true
-                    self.tableView.reloadData()
                     self.isWSCall = false
                 }
             }
         } ).disposed(by: disposeBag)
-        
     }
     
     //MARK:- Get all Movie list
@@ -85,28 +110,4 @@ class ShowNowVC: UIViewController {
         movieViewModel.loadMoreSearchResultFromServer(dictParams: params as [String : AnyObject])
     }
     
-}
-
-extension ShowNowVC: UITableViewDelegate, UITableViewDataSource {
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return movieViewModel.movieObjects.value.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let searchResultCell: SearchResultCell = tableView.dequeueReusableCell(withIdentifier: "SearchResultCell") as! SearchResultCell
-        searchResultCell.selectionStyle = .none
-        searchResultCell.movieObject = movieViewModel.movieObjects.value[indexPath.row]
-        return searchResultCell
-    }
-    
-    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        
-        if(indexPath.row == (movieViewModel.movieObjects.value.count-1)) {
-            
-            if(isWSCall == false) {
-                self.loadMoreDataFromServer()
-            }
-        }
-    }
 }

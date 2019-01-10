@@ -29,8 +29,7 @@ class SearchVC: UIViewController {
         searchViewModel.delegate = self
         tblSearchView.registerNib("SearchCell")
         tblSearchView.tableFooterView = UIView()
-        self.searchViewModel.getAllSearchFromLocalDB(strSearchText: "")
-        
+        self.searchViewModel.getAllSearchFromLocalDB(strSearchText: "")        
     }
     
     override func viewWillAppear(_ animated: Bool) {

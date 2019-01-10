@@ -46,10 +46,6 @@
                                     </userDefinedRuntimeAttributes>
                                 </collectionViewFlowLayout>
                                 <cells/>
-                                <connections>
-                                    <outlet property="dataSource" destination="w1f-7k-Vae" id="Xmi-Bd-jda"/>
-                                    <outlet property="delegate" destination="w1f-7k-Vae" id="uEA-Jz-p8p"/>
-                                </connections>
                             </collectionView>
                             <view hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="H2K-dB-7K1">
                                 <rect key="frame" x="0.0" y="369" width="320" height="60"/>
@@ -334,10 +330,6 @@
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <color key="separatorColor" red="0.82352941176470584" green="0.82352941176470584" blue="0.82352941176470584" alpha="1" colorSpace="calibratedRGB"/>
                                 <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                <connections>
-                                    <outlet property="dataSource" destination="3zy-bS-mhV" id="axb-qu-vyb"/>
-                                    <outlet property="delegate" destination="3zy-bS-mhV" id="eLp-NN-UrQ"/>
-                                </connections>
                             </tableView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

@@ -22,6 +22,7 @@ class MovieListVC: UIViewController {
     
     //MARK:- Variables
     let disposeBag = DisposeBag()
+    
     private let movieViewModel = MovieViewModel()
     private var pageSize: CGSize {
         let layout = self.collectionView.collectionViewLayout as! MovieFlowLayout
@@ -35,6 +36,35 @@ class MovieListVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setInitialSetup()
+        self.bindList()
+        self.bindLoading()
+    }
+    
+    //MARK:- UI Binding
+    
+    private func bindList() {
+        
+        self.movieViewModel.movieObjects.asObservable()
+            .bind(to: collectionView.rx.items) { (collectionView, row, element) in
+                let indexPath = IndexPath(row: row, section: 0)
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MovieCell", for: indexPath) as! MovieCell
+                cell.movieObject = element
+                return cell
+            }
+            .disposed(by: disposeBag)
+        
+        collectionView.rx.didEndDecelerating.subscribe(onNext: { _ in
+            let pageSide = self.pageSize.width
+            let offset = self.collectionView.contentOffset.x
+            let currentPage = Int(floor((offset - pageSide / 2) / pageSide) + 1)
+            self.setMovieDetails(currentPage: currentPage)
+        }, onCompleted: {
+            
+        }).disposed(by: disposeBag)
+        
+    }
+    
+    private func bindLoading() {
         
         self.movieViewModel.movieObjects.asObservable().subscribe({
             _ in
@@ -46,11 +76,11 @@ class MovieListVC: UIViewController {
                     self.viewMovieDetail.isHidden = false
                     self.activity.isHidden = true
                     self.setMovieDetails(currentPage: 0)
-                    self.collectionView.reloadData()
                 }
             }
         } ).disposed(by: disposeBag)
     }
+    
     
     //MARK:- Initial Setup
     
@@ -77,25 +107,6 @@ class MovieListVC: UIViewController {
         })
     }
     
-}
-
-// MARK: - Collection Delegate & DataSource
-extension MovieListVC: UICollectionViewDelegate, UICollectionViewDataSource {
-    
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return self.movieViewModel.movieObjects.value.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MovieCell", for: indexPath) as! MovieCell
-        cell.movieObject = self.movieViewModel.movieObjects.value[(indexPath as NSIndexPath).row]
-        return cell
-    }
-    
     // MARK: - UIScrollViewDelegate
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         let pageSide = self.pageSize.width
@@ -103,4 +114,5 @@ extension MovieListVC: UICollectionViewDelegate, UICollectionViewDataSource {
         let currentPage = Int(floor((offset - pageSide / 2) / pageSide) + 1)
         self.setMovieDetails(currentPage: currentPage)
     }
+    
 }
