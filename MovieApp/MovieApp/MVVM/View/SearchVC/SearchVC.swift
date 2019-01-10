@@ -8,6 +8,8 @@
 
 import UIKit
 import CoreData
+import RxSwift
+import RxCocoa
 
 class SearchVC: UIViewController {
     
@@ -28,6 +30,7 @@ class SearchVC: UIViewController {
         tblSearchView.registerNib("SearchCell")
         tblSearchView.tableFooterView = UIView()
         self.searchViewModel.getAllSearchFromLocalDB(strSearchText: "")
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -78,7 +81,7 @@ extension SearchVC: ViewModelSearchDelegate {
 extension SearchVC : UISearchBarDelegate {
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        self.searchViewModel.getAllSearchFromLocalDB(strSearchText: searchBar.text!)
+        //self.searchViewModel.getAllSearchFromLocalDB(strSearchText: searchBar.text!)
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {

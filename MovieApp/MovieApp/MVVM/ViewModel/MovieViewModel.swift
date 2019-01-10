@@ -8,24 +8,18 @@
 
 import UIKit
 import SwiftyJSON
-
-protocol ViewModelMovieDelegate: class {
-    func reloadData()
-}
+import RxSwift
 
 
 class MovieViewModel {
     
     private var repository = MoviesRepository()
-    weak var delegate: ViewModelMovieDelegate?
-    var movieObjects = [MovieObject]()
+    var movieObjects: Variable<[MovieObject]> = Variable([])
     
-    
-    func getAllMoviesFromServer(dictParams:[String: AnyObject]?) {
+    func getAllMoviesFromServer() {
         
-        repository.getAllMoviesFromServer(dictParams: dictParams, success: { (response) in
-            self.movieObjects = response!
-            self.delegate?.reloadData()
+        repository.getAllMoviesFromServer(success: { (response) in
+            self.movieObjects.value = response!
         }, failed: { (error) in
             print(error ?? "")
         })
@@ -34,8 +28,7 @@ class MovieViewModel {
     func getSearchResultFromServer(dictParams:[String: AnyObject]?) {
         
         repository.getSearchResultFromServer(dictParams: dictParams, success: { (response) in
-            self.movieObjects = response!
-            self.delegate?.reloadData()
+            self.movieObjects.value = response!
         }, failed: { (error) in
             print(error ?? "")
         })
@@ -44,10 +37,12 @@ class MovieViewModel {
     func loadMoreSearchResultFromServer(dictParams:[String: AnyObject]?) {
         
         repository.loadMoreSearchResultFromServer(dictParams: dictParams, success: { (response) in
-            self.movieObjects = self.movieObjects + response!
-            self.delegate?.reloadData()
+            self.movieObjects.value = self.movieObjects.value + response!
         }, failed: { (error) in
             print(error ?? "")
         })
     }
 }
+
+
+

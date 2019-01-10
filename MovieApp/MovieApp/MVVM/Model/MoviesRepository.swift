@@ -13,11 +13,11 @@ class MoviesRepository: NetworkManager {
 
     private let dateFormatter = DateFormatter()
     
-    func getAllMoviesFromServer(dictParams:[String: AnyObject]?, success: @escaping ([MovieObject]?) -> Void,  failed: @escaping (AnyObject?) -> Void) {
+    func getAllMoviesFromServer(success: @escaping ([MovieObject]?) -> Void,  failed: @escaping (AnyObject?) -> Void) {
         
         let movieListURL = APIConstants.APIBaseURL + EndPoints.movieList
         
-        super.GETDataRequset(taskCancel: false, requestUrl: movieListURL, parameter: dictParams, success: { (responseObject) in
+        super.GETDataRequset(taskCancel: false, requestUrl: movieListURL, parameter: nil, success: { (responseObject) in
             var movieList = JSON(responseObject!).dictionaryValue
             let arrTempList = movieList["results"]!.arrayValue
             success(self.setTheProperties(arrTempList: arrTempList))

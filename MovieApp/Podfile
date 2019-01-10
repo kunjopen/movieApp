@@ -6,4 +6,6 @@ target 'MovieApp' do
 	pod 'SwiftyJSON'
     pod 'SDWebImage'
     pod 'FloatRatingView'
+    pod 'RxSwift',    '~> 4.0'
+    pod 'RxCocoa',    '~> 4.0'
 end

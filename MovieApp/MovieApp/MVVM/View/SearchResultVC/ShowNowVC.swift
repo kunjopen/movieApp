@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 class ShowNowVC: UIViewController {
     
@@ -15,6 +17,7 @@ class ShowNowVC: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     
     //MARK:- Variables
+    let disposeBag = DisposeBag()
     let movieViewModel = MovieViewModel()
     var isWSCall: Bool = false
     var strSearchText:String!
@@ -34,6 +37,22 @@ class ShowNowVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setInitialUI()
+        
+        self.movieViewModel.movieObjects.asObservable().subscribe({
+            _ in
+            
+            if(!(self.movieViewModel.movieObjects.value.isEmpty)) {
+                
+                DispatchQueue.main.async {
+                    self.tableView.refreshControl?.endRefreshing()
+                    self.tableView.isHidden = false
+                    self.activity.isHidden = true
+                    self.tableView.reloadData()
+                    self.isWSCall = false
+                }
+            }
+        } ).disposed(by: disposeBag)
+        
     }
     
     //MARK:- Get all Movie list
@@ -49,9 +68,7 @@ class ShowNowVC: UIViewController {
         self.tableView.registerNib("SearchResultCell")
         self.tableView.refreshControl = refreshControl
         self.tableView.tableFooterView = UIView()
-        self.tableView.estimatedRowHeight = 155
-        
-        movieViewModel.delegate = self        
+        self.tableView.estimatedRowHeight = 155        
         self.getAllMoviewsFromServer()
     }
     
@@ -70,39 +87,22 @@ class ShowNowVC: UIViewController {
     
 }
 
-extension ShowNowVC: ViewModelMovieDelegate {
-    
-    func reloadData() {
-        
-        if(!self.movieViewModel.movieObjects.isEmpty) {
-            
-            DispatchQueue.main.async {
-                self.tableView.refreshControl?.endRefreshing()
-                self.tableView.isHidden = false
-                self.activity.isHidden = true
-                self.tableView.reloadData()
-                self.isWSCall = false
-            }
-        }
-    }
-}
-
 extension ShowNowVC: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.movieViewModel.movieObjects.count
+        return movieViewModel.movieObjects.value.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let searchResultCell: SearchResultCell = tableView.dequeueReusableCell(withIdentifier: "SearchResultCell") as! SearchResultCell
         searchResultCell.selectionStyle = .none
-        searchResultCell.movieObject = self.movieViewModel.movieObjects[indexPath.row]
+        searchResultCell.movieObject = movieViewModel.movieObjects.value[indexPath.row]
         return searchResultCell
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         
-        if(indexPath.row == (self.movieViewModel.movieObjects.count-1)) {
+        if(indexPath.row == (movieViewModel.movieObjects.value.count-1)) {
             
             if(isWSCall == false) {
                 self.loadMoreDataFromServer()

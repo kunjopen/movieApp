@@ -8,6 +8,8 @@
 
 import UIKit
 import SDWebImage
+import RxSwift
+import RxCocoa
 
 class MovieListVC: UIViewController {
     
@@ -19,6 +21,7 @@ class MovieListVC: UIViewController {
     @IBOutlet weak var infoLabel: UILabel!
     
     //MARK:- Variables
+    let disposeBag = DisposeBag()
     private let movieViewModel = MovieViewModel()
     private var pageSize: CGSize {
         let layout = self.collectionView.collectionViewLayout as! MovieFlowLayout
@@ -32,6 +35,21 @@ class MovieListVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setInitialSetup()
+        
+        self.movieViewModel.movieObjects.asObservable().subscribe({
+            _ in
+            
+            if(!(self.movieViewModel.movieObjects.value.isEmpty)) {
+                
+                DispatchQueue.main.async {
+                    self.collectionView.isHidden = false
+                    self.viewMovieDetail.isHidden = false
+                    self.activity.isHidden = true
+                    self.setMovieDetails(currentPage: 0)
+                    self.collectionView.reloadData()
+                }
+            }
+        } ).disposed(by: disposeBag)
     }
     
     //MARK:- Initial Setup
@@ -44,15 +62,14 @@ class MovieListVC: UIViewController {
     //MARK:- Get all Movie list
     
     private func getAllMoviewsFromServer() {
-        movieViewModel.delegate = self
-        movieViewModel.getAllMoviesFromServer(dictParams: nil)
+        movieViewModel.getAllMoviesFromServer()
     }
     
     //MARK:- Custom methods
     
     private func setMovieDetails(currentPage: Int) {
         
-        let movieObject = self.movieViewModel.movieObjects[currentPage]
+        let movieObject = self.movieViewModel.movieObjects.value[currentPage]
         
         UIView.transition(with: self.infoLabel, duration: 0.3, options: .transitionCrossDissolve, animations: {
             self.infoLabel.text = movieObject.strTitle
@@ -60,23 +77,6 @@ class MovieListVC: UIViewController {
         })
     }
     
-}
-
-extension MovieListVC: ViewModelMovieDelegate {
-    
-    func reloadData() {
-        
-        if(!self.movieViewModel.movieObjects.isEmpty) {
-            
-            DispatchQueue.main.async {
-                self.collectionView.isHidden = false
-                self.viewMovieDetail.isHidden = false
-                self.activity.isHidden = true
-                self.setMovieDetails(currentPage: 0)
-                self.collectionView.reloadData()
-            }
-        }
-    }
 }
 
 // MARK: - Collection Delegate & DataSource
@@ -87,12 +87,12 @@ extension MovieListVC: UICollectionViewDelegate, UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return self.movieViewModel.movieObjects.count
+        return self.movieViewModel.movieObjects.value.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MovieCell", for: indexPath) as! MovieCell
-        cell.movieObject = self.movieViewModel.movieObjects[(indexPath as NSIndexPath).row]
+        cell.movieObject = self.movieViewModel.movieObjects.value[(indexPath as NSIndexPath).row]
         return cell
     }
     
